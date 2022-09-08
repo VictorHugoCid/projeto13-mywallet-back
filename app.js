@@ -35,12 +35,18 @@ app.post('/signUp', async (req, res) => {
     const hashPassword = bcrypt.hashSync(password, 10);
 
     try {
+        const checkUser = await db.collection('users').findOne({email})
+
+        if(checkUser){
+            return res.status(409).send('Esse email já está sendo utilizado')
+        }
         await db.collection('users').insertOne({
             username,
             email,
             password: hashPassword,
         })
         res.sendStatus(201)
+
     } catch (error) {
         console.error(error)
         res.sendStatus(500)
@@ -149,7 +155,7 @@ app.post('/balance', async (req, res) => {
     }
 })
 
-// Home--------------------------------
+// Home-GET--------------------------------
 
 app.get('/home', async (req, res) => {
 
@@ -170,7 +176,6 @@ app.get('/home', async (req, res) => {
             _id: session.userId,
         })
         // ----------------------------------------------
-
 
         const balance = await db.collection('balance').find({
             userId: user._id,
