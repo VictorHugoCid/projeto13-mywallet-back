@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dayjs from 'dayjs';
-import {MongoClient, ObjectId} from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import joi from 'joi';
 import { stripHtml } from 'string-strip-html';
@@ -27,10 +27,10 @@ mongoClient.connect().then(() => {
 
 
 
-// Log-in--------------------------------
+// Sign-Up--------------------------------
 
 app.post('/signUp', async (req, res) => {
-    const{username, email, password} = req.body;
+    const { username, email, password } = req.body;
 
     const hashPassword = bcrypt.hashSync(password, 10);
 
@@ -47,29 +47,140 @@ app.post('/signUp', async (req, res) => {
     }
 })
 
+// Log-In--------------------------------
+
 app.post('/', async (req, res) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     try {
-        const user = await db.collection('users').findOne({email})
+        const user = await db.collection('users').findOne({ email })
         const token = uuidv4();
         // if user exist e bcrypt.compare conferir a senha como verdade
-        if(user && bcrypt.compareSync(password, user.password)){
+        if (user && bcrypt.compareSync(password, user.password)) {
 
             await db.collection('sessions').insertOne({
                 token,
                 userId: user._id,
             })
 
-        }else{
+        } else {
             return res.status(404).send('Usuário e/ou senha não encontrada.')
         }
-        
+
         return res.status(200).send(token);
-        
+
     } catch (error) {
         console.error(error);
-        res.sendStatus(500)
+        res.sendStatus(500);
+    }
+})
+
+// Income--------------------------------
+
+app.post('/balance', async (req, res) => {
+    const { value, description, type, day } = req.body;
+    const token = req.headers.authorization?.replace('Bearer ', '')
+
+    try {
+        // ----------------------------------------------
+        const session = await db.collection('sessions').findOne({
+            token,
+        })
+
+        if (!session) {
+            return res.sendStatus(401);
+        }
+
+        const user = await db.collection('users').findOne({
+            _id: session.userId,
+        })
+        // ----------------------------------------------
+
+
+        db.collection('balance').insertOne({
+            value,
+            description,
+            type,
+            day,
+            userId: user._id,
+        })
+
+        return res.sendStatus(200);
+
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+})
+
+// Outcome--------------------------------
+
+app.post('/balance', async (req, res) => {
+    const { value, description, type, day } = req.body;
+
+    try {
+        // ----------------------------------------------
+        const session = await db.collection('sessions').findOne({
+            token,
+        })
+
+        if (!session) {
+            return res.sendStatus(401);
+        }
+
+        const user = await db.collection('users').findOne({
+            _id: session.userId,
+        })
+        // ----------------------------------------------
+
+        db.collection('balance').insertOne({
+            userId: user._id,
+            value,
+            description,
+            type,
+            day
+        })
+
+        return res.sendStatus(200);
+
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+})
+
+// Home--------------------------------
+
+app.get('/home', async (req, res) => {
+
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    try {
+        // ----------------------------------------------
+
+        const session = await db.collection('sessions').findOne({
+            token,
+        })
+
+        if (!session) {
+            return res.sendStatus(401);
+        }
+
+        const user = await db.collection('users').findOne({
+            _id: session.userId,
+        })
+        // ----------------------------------------------
+
+
+        const balance = await db.collection('balance').find({
+            userId: user._id,
+        }).toArray();
+
+
+        res.status(200).send(balance)
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
     }
 })
 
