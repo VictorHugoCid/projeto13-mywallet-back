@@ -7,8 +7,6 @@ import joi from 'joi';
 import { stripHtml } from 'string-strip-html';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-import trim from 'trim';
-
 
 dotenv.config()
 
@@ -44,9 +42,7 @@ const registerSchema = joi.object({
     day: joi.string().required().min(1),
 })
 
-
 // Sign-Up--------------------------------
-
 app.post('/signup', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -81,7 +77,6 @@ app.post('/signup', async (req, res) => {
 })
 
 // Log-In--------------------------------
-
 app.post('/signin', async (req, res) => {
     const { email, password } = req.body;
 
@@ -123,7 +118,6 @@ app.post('/signin', async (req, res) => {
 })
 
 // Income--------------------------------
-
 app.post('/income', async (req, res) => {
     const { value, description, type, day } = req.body;
     const token = req.headers.authorization?.replace('Bearer ', '')
@@ -170,7 +164,6 @@ app.post('/income', async (req, res) => {
 })
 
 // Outcome--------------------------------
-
 app.post('/outcome', async (req, res) => {
     const { value, description, type, day } = req.body;
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -216,7 +209,6 @@ app.post('/outcome', async (req, res) => {
 })
 
 // Home-GET--------------------------------
-
 app.get('/home', async (req, res) => {
 
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -251,25 +243,54 @@ app.get('/home', async (req, res) => {
 
 //  Update------------------------
 
-app.put('/Income_Update', async (req, res) => {
+app.put('/income-update/:id', async (req, res) => {
     const { id } = req.params
+    const {value, description} = req.body
+    console.log(id)
+
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
 
     try {
+        const register = await db.collection('balance').findOne({ _id: new ObjectId(id) })
 
+        if (!register) {
+            return res.status(404).send('Registro não encontrado')
+        }
+
+        await db.collection('balance').updateOne({ _id: new ObjectId(id) }, {
+            $set:
+                {value,
+                description,}
+        })
+
+        res.sendStatus(200)
     } catch (error) {
         console.error(error)
         res.sendStatus(500);
     }
 })
 
-app.put('/Outcome_Update', async (req, res) => {
+app.put('/outcome-update/:id', async (req, res) => {
     const { id } = req.params
+    const {value, description} = req.body
 
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
     try {
+        const register = await db.collection('balance').findOne({ _id: new ObjectId(id) })
 
+        if (!register) {
+            return res.status(404).send('Registro não encontrado')
+        }
 
+        await db.collection('balance').updateOne({ _id: new ObjectId(id) }, {
+            $set:
+                {value,
+                description,}
+        })
+
+        res.sendStatus(200)
     } catch (error) {
         console.error(error)
         res.sendStatus(500);
@@ -277,7 +298,6 @@ app.put('/Outcome_Update', async (req, res) => {
 })
 
 //  Delete------------------------
-
 app.delete('/delete/:id', async (req, res) => {
     const { id } = req.params
 
