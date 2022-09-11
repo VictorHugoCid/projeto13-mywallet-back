@@ -30,13 +30,12 @@ async function createParticipant(req, res) {
         res.status(422).send(errors)
         return;
     }
-
+    // ----------------------------------------------------------
     try {
-        const checkUser = await db.collection('users').findOne({ email })
+        // -------------------------------------------
 
-        if (checkUser) {
-            return res.status(409).send('Esse email já está sendo utilizado')
-        }
+        // --------------------------------------------
+
         await db.collection('users').insertOne({
             username: stripHtml(username).result.trim(),
             email: stripHtml(email).result.trim(),
@@ -53,6 +52,8 @@ async function createParticipant(req, res) {
 async function logInParticipant (req, res) {
     const { email, password } = req.body;
 
+    // const validate =res.locals.validation
+
     // validação com joi
     const validation = signInSchema.validate(req.body)
 
@@ -61,23 +62,27 @@ async function logInParticipant (req, res) {
         res.status(422).send(errors)
         return;
     }
+    // -----------------------------------------------
 
     try {
-        const user = await db.collection('users').findOne({
-            email: stripHtml(email).result.trim(),
-        })
         const token = uuidv4();
+        const user = await db.collection('users').findOne({
+            email:stripHtml(email).result.trim(),
+        })
+
         // if user exist e bcrypt.compare conferir a senha como verdade
+        console.log(user)
         if (user && bcrypt.compareSync(password, user.password)) {
+            
 
             await db.collection('sessions').insertOne({
                 token,
                 userId: user._id,
             })
 
-        } else {
-            return res.status(404).send('Usuário e/ou senha não encontrada.')
-        }
+       } else {
+           return res.status(404).send('Usuário e/ou senha não encontrada.')
+       }
 
         return res.status(200).send({
             token,

@@ -28,18 +28,12 @@ async function createRegister(req, res) {
 
     try {
         // ----------------------------------------------
-        const session = await db.collection('sessions').findOne({
-            token,
-        })
-
-        if (!session) {
-            return res.sendStatus(401);
-        }
+        let session = res.locals.session
+        // ----------------------------------------------
 
         const user = await db.collection('users').findOne({
             _id: session.userId,
         })
-        // ----------------------------------------------
 
 
         db.collection('balance').insertOne({
@@ -59,26 +53,16 @@ async function createRegister(req, res) {
 }
 
 // read------------------------------------
-
 async function readBalance(req, res) {
-
-    const token = req.headers.authorization?.replace('Bearer ', '');
-
+    
     try {
         // ----------------------------------------------
-
-        const session = await db.collection('sessions').findOne({
-            token,
-        })
-
-        if (!session) {
-            return res.sendStatus(401);
-        }
+        const session = res.locals.session
+        // ----------------------------------------------
 
         const user = await db.collection('users').findOne({
             _id: session.userId,
         })
-        // ----------------------------------------------
 
         const balance = await db.collection('balance').find({
             userId: user._id,
@@ -97,15 +81,10 @@ async function updateRegister(req, res) {
     const { id } = req.params
     const { value, description } = req.body
 
-    const token = req.headers.authorization?.replace('Bearer ', '');
-
-
     try {
-        const register = await db.collection('balance').findOne({ _id: new ObjectId(id) })
+        // validate middleware register
 
-        if (!register) {
-            return res.status(404).send('Registro não encontrado')
-        }
+        // ------------------------------
 
         await db.collection('balance').updateOne({ _id: new ObjectId(id) }, {
             $set:
@@ -123,13 +102,13 @@ async function updateRegister(req, res) {
 }
 
 // delete---------------------------------
-
 async function deleteRegister(req, res) {
     const { id } = req.params
-    console.log(id)
-
 
     try {
+        // validação registro middleware
+        
+        // -----------------------------
         await db.collection('balance').deleteOne({ _id: new ObjectId(id) })
 
         res.sendStatus(200)
