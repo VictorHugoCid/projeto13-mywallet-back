@@ -93,6 +93,4 @@ async function logInParticipant (req, res) {
 export{
     createParticipant,
     logInParticipant,
-
-
 }
