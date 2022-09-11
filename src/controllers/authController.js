@@ -45,7 +45,7 @@ async function createParticipant(req, res) {
 
     } catch (error) {
         console.error(error)
-        res.sendStatus(500)
+        res.status(500).send('veio aqui')
     }
 }
 
@@ -71,7 +71,6 @@ async function logInParticipant (req, res) {
         })
 
         // if user exist e bcrypt.compare conferir a senha como verdade
-        console.log(user)
         if (user && bcrypt.compareSync(password, user.password)) {
             
 
@@ -95,7 +94,19 @@ async function logInParticipant (req, res) {
     }
 }
 
+async function logOutParticipant (req, res){
+    const token = req.headers.authorization?.replace('Bearer ', '')
+
+    try {
+        await db.collection('sessions').deleteOne({token})
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+}
+
 export{
     createParticipant,
     logInParticipant,
+    logOutParticipant,
 }

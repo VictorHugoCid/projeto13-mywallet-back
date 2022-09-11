@@ -12,7 +12,7 @@ async function userAlreadyExist(req, res, next) {
             return res.status(409).send('Esse email já está sendo utilizado')
         }
 
-        res.locals.user = user
+        res.locals.user = checkUser
         next();
     } catch (error) {
         console.error(error);
