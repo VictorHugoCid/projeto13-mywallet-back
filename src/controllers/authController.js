@@ -52,8 +52,6 @@ async function createParticipant(req, res) {
 async function logInParticipant (req, res) {
     const { email, password } = req.body;
 
-    // const validate =res.locals.validation
-
     // validação com joi
     const validation = signInSchema.validate(req.body)
 

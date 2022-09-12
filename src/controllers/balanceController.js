@@ -78,16 +78,12 @@ async function readBalance(req, res) {
 
 // update---------------------------------
 async function updateRegister(req, res) {
-    console.log(req.params)
 
     const { id } = req.params
 
     const { value, description } = req.body
 
     try {
-        // validate middleware register
-
-        // ------------------------------
 
         await db.collection('balance').updateOne({ _id: new ObjectId(id) }, {
             $set:

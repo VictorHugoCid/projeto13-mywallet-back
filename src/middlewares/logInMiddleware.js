@@ -5,8 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { stripHtml } from 'string-strip-html';
 
 
-// TENTAR AJUSTAR ESSE MIDDLEWARE
-
 async function logInValidate(req, res, next) {
     const { email, password } = req.body;
 
