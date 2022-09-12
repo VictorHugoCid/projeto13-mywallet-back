@@ -18,12 +18,12 @@ async function createRegister(req, res) {
     const token = req.headers.authorization?.replace('Bearer ', '')
 
     // validação com joi
-    const validation = registerSchema.validate(req.body)
+    const validation = registerSchema.validate(req.body, { abortEarly: false })
 
     if (validation.error) {
         const errors = validation.error.details.map(value => value.message)
-        res.status(422).send(errors)
-        return;
+        res.status(422).send(errors);
+        return 
     }
 
     try {

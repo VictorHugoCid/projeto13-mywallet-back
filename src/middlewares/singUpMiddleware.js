@@ -1,8 +1,7 @@
-import joi from 'joi';
 import { db } from '../database/db.js';
 
 async function userAlreadyExist(req, res, next) {
-    const { username, email, password } = req.body;
+    const {  email } = req.body;
 
 
     try {
