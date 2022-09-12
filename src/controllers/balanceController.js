@@ -78,7 +78,10 @@ async function readBalance(req, res) {
 
 // update---------------------------------
 async function updateRegister(req, res) {
+    console.log(req.params)
+
     const { id } = req.params
+
     const { value, description } = req.body
 
     try {

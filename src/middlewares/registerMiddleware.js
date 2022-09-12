@@ -3,8 +3,9 @@ import { ObjectId } from 'mongodb';
 import { db } from '../database/db.js';
 
 async function validateRegister(req, res, next) {
+
     const { id } = req.params
-    console.log('id', id)
+    console.log(req.params)
 
     // const { token } = req.headers.authorization?.replace('Bearer ', '')
 

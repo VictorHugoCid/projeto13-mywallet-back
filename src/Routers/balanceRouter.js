@@ -10,7 +10,7 @@ router.post('/createRegister', validateSession, balanceController.createRegister
 
 router.get('/home', validateSession, balanceController.readBalance)
 
-router.put('/updateRegister/:id',validateRegister, balanceController.updateRegister)
+router.put('/updateRegister/:type/:id',validateRegister, balanceController.updateRegister)
 
 router.delete('/deleteRegister/:id',validateRegister, balanceController.deleteRegister)
 
